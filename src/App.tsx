@@ -34,11 +34,22 @@ function App() {
 	 */
 	useEffect(() => {
     const today = getNowDate(); // 今日の日付を取得
+    let newCorrectAnswerCount = 0;
     // 今日始めてページを表示した場合
     if (localStorage.getItem(StorageData.OpenPageDate) !== today) {
       localStorage.setItem(StorageData.OpenPageDate, today); // ストレージに今日の日付を格納
+      localStorage.setItem(StorageData.CorrectAnswerCount, '0');
       setIsInitDisplay(true); // 遊び方ダイアログ初期表示フラグON
       changeHowToPlayDialog(true); // 遊び方ダイアログを表示
+    }
+    else {
+      // 今日の正解数を取得
+      const todayCorrectAnswerCount = localStorage.getItem(StorageData.CorrectAnswerCount);
+      if (todayCorrectAnswerCount != null) {
+        // 今日の正解数を設定
+        setCorrectAnswerCount(Number(todayCorrectAnswerCount));
+        newCorrectAnswerCount = Number(todayCorrectAnswerCount);
+      }
     }
     const problemInfos = createProblem(today);
 
@@ -46,10 +57,10 @@ function App() {
     setProblemInfoList(problemInfos);
 
     const newProblemNumbers = [...problemNumbers]; // 配列の値渡し
-    newProblemNumbers[0] = problemInfos[correctAnswerCount].problem[0];
-    newProblemNumbers[1] = problemInfos[correctAnswerCount].problem[1];
-    newProblemNumbers[2] = problemInfos[correctAnswerCount].problem[2];
-    newProblemNumbers[3] = problemInfos[correctAnswerCount].problem[3];
+    newProblemNumbers[0] = problemInfos[newCorrectAnswerCount].problem[0];
+    newProblemNumbers[1] = problemInfos[newCorrectAnswerCount].problem[1];
+    newProblemNumbers[2] = problemInfos[newCorrectAnswerCount].problem[2];
+    newProblemNumbers[3] = problemInfos[newCorrectAnswerCount].problem[3];
 
     // 問題の更新
     setProblemNumbers(newProblemNumbers);
@@ -68,6 +79,7 @@ function App() {
     // 正解数を加算
     const newCorrectAnswerCount = correctAnswerCount + 1;
     setCorrectAnswerCount(newCorrectAnswerCount);
+    localStorage.setItem(StorageData.CorrectAnswerCount, String(newCorrectAnswerCount));
 
     // 新しい問題を設定
     const newProblemNumbers = [...problemNumbers]; // 配列の値渡し

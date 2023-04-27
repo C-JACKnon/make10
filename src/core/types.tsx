@@ -6,6 +6,10 @@ export enum StorageData {
    * ページを開いた日付
    */
   OpenPageDate = 'OpenPageDate',
+  /**
+   * その日の正解数
+   */
+  CorrectAnswerCount = 'CorrectAnswerCount',
 }
 
 /**
