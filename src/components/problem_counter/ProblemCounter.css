@@ -1,0 +1,36 @@
+#problem-counter {
+  background-color: red;
+  height: 0px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+#problem-counter-value {
+  margin: 1em 2em;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+#problem-counter-child-number {
+  padding: 0px 0.2em 0.8em 0px;
+  font-size: 1.5em;
+  color: #3e4c4b;
+}
+
+#problem-counter-number-divider {
+  width: 2px;
+  height: 2.4em;
+  background-color: #3e4c4b;
+  transform: rotate(32deg);
+}
+
+#problem-counter-mother-number {
+  padding: 0.6em 0px 0px 0.2em;
+  font-size: 1.0em;
+  color: #3e4c4b;
+}

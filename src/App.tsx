@@ -6,12 +6,14 @@ import MakeTen from './components/make_ten/MakeTen';
 import { ProblemInfo, StorageData } from './core/types';
 import { problemList } from './assets/problem/problemList';
 import Chance from 'chance';
+import ProblemCounter from './components/problem_counter/ProblemCounter';
 
 /**
  * アプリケーションコンポーネント
  * @returns アプリケーションコンポーネント
  */
 function App() {
+  const idDevelopMode: boolean = false; // 開発モード
   const problemCount: number = 5; // 出題する問題数
 
   // 問題情報リスト
@@ -139,7 +141,6 @@ function App() {
       }
       problemOrderList.push(problemOrder); // リストに格納
     }
-    console.log(problemListIndexs.join(',')); // TODO: 動作確認のため追加
 
     const problemInfos: ProblemInfo[] = []; // 問題情報配列
     // 問題情報配列に情報を設定
@@ -156,7 +157,6 @@ function App() {
         answer: problemList[index].answer,
       })
     });
-    console.log(problemInfos);
     return problemInfos;
   }
 
@@ -165,7 +165,6 @@ function App() {
    * @param {boolean} isOpen - ダイアログを表示させるか否か
    */
   const changeHowToPlayDialog = (isOpen: boolean): void => {
-    console.log(isOpen? '遊び方ダイアログ表示' : '遊び方ダイアログ非表示');
     setIsOpenHowToDialog(isOpen); // 表示非表示を切り替える
   }
 
@@ -176,13 +175,19 @@ function App() {
           <HowToPlayDialog
             isOpen={isOpenHowToDialog}
             isInitDisplay={isInitDisplay}
-            closeHowToPlayDialog={() => changeHowToPlayDialog(false)} />
+            closeHowToPlayDialog={() => changeHowToPlayDialog(false)}
+          />
           <Header
             openHowToPlayDialog={() => {
               setIsInitDisplay(false);
               changeHowToPlayDialog(true);
             }}
+            isDevelopMode={idDevelopMode}
           />
+          <ProblemCounter
+            problemNumber={correctAnswerCount + 1}
+            problemCount={problemCount}
+          ></ProblemCounter>
           <MakeTen
             problemNumbers={problemNumbers}
             correctAnswer={handleCorrectAnswer}

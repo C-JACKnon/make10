@@ -45,7 +45,7 @@ type Props = {
 const HowToPlayDialog = ({ isOpen, isInitDisplay, closeHowToPlayDialog }: Props): JSX.Element => {
 
   return (
-    <div>
+    <>
       <Dialog
         open={isOpen}
 				TransitionComponent={Transition}
@@ -86,7 +86,7 @@ const HowToPlayDialog = ({ isOpen, isInitDisplay, closeHowToPlayDialog }: Props)
 					>START</Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }
 
