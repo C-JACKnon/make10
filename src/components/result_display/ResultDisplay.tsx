@@ -6,11 +6,13 @@ import { ProblemInfo } from '../../core/types';
  * ResultDisplayコンポーネントのProps
  * @property {boolean} isOpen - 結果ダイアログの表示フラグ
  * @property {ProblemInfo[]} problemInfoList - 問題情報リスト
+ * @property {string} allProblemClearTime - 全問正解までのタイム
  * @property {boolean} isSurrender - 降参フラグ
  */
 type Props = {
   isOpen: boolean;
   problemInfoList: ProblemInfo[];
+  allProblemClearTime: string;
   isSurrender: boolean;
 }
 
@@ -18,17 +20,18 @@ type Props = {
  * ResultDisplayコンポーネント
  * @param {boolean} isOpen - 結果ダイアログの表示フラグ
  * @param {ProblemInfo[]} problemInfoList - 問題情報リスト
+ * @param {string} allProblemClearTime - 全問正解までのタイム
  * @param {boolean} isSurrender - 降参フラグ
  * @returns ResultDisplayコンポーネント
  */
-const ResultDisplay = ({ isOpen, problemInfoList, isSurrender }: Props): JSX.Element => {
+const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrender }: Props): JSX.Element => {
   // 解答時間の表示要素
   let answerTime: JSX.Element = <></>;
   if (isSurrender) {
     answerTime = <>記録なし</>;
   }
   else {
-    answerTime = <>TODO: タイムを出力</>
+    answerTime = <>{allProblemClearTime}</>
   }
 
   return (

@@ -11,9 +11,17 @@ export enum StorageData {
    */
   CorrectAnswerCount = 'CorrectAnswerCount',
   /**
+   * その日のゲーム開始時間
+   */
+  StartTime = 'StartTime',
+  /**
+   * 全問正解までのタイム
+   */
+  AllProblemClearTime = 'AllProblemClearTime',
+  /**
    * 降参フラグ
    */
-  IsSurrender = 'false'
+  IsSurrender = 'IsSurrender',
 }
 
 /**

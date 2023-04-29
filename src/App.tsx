@@ -25,6 +25,12 @@ function App() {
   // 問題の数字配列[4]
 	const [problemNumbers, setProblemNumbers] = useState<number[]>([0, 0, 0, 0]);
 
+  // 正解数
+  const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
+
+  // 全問正解までのタイム
+  const [allProblemClearTime, setAllProblemClearTime] = useState('');
+
   // 遊び方ダイアログの表示フラグ
   const [isOpenHowToDialog, setIsOpenHowToDialog] = useState(false);
 
@@ -39,9 +45,6 @@ function App() {
 
   // 結果画面の表示フラグ
   const [isOpenResultDisplay, setIsOpenResultDisplay] = useState(false);
-
-  // 正解数
-  const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
 
   // 画面初期処理完了フラグ
   const [isInitDisplayCompleted, setIsInitDisplayCompleted] = useState(false);
@@ -71,6 +74,14 @@ function App() {
           
           // 降参フラグを更新
           setIsSurrender(todayIsSurrender === 'true');
+
+          // ストレージに格納されている全問正解までの時間を取得
+          const clearTime = localStorage.getItem(StorageData.AllProblemClearTime);
+
+          if (clearTime != null) {
+            // 全問正解までの時間を更新
+            setAllProblemClearTime(clearTime);
+          }
 
           // 結果画面の表示フラグON
           setIsOpenResultDisplay(true);
@@ -112,6 +123,15 @@ function App() {
 
     // 最終問題に正解した場合
     if (newCorrectAnswerCount >= problemCount) {
+      // ストレージに格納されている開始時間を取得
+      const startTime = localStorage.getItem(StorageData.StartTime);
+      // 開始時刻から現在時刻までの時間を取得
+      const clearTime = getElapsedTime(Number(startTime));
+      // 全問正解までの時間を更新
+      setAllProblemClearTime(clearTime);
+      // ストレージに全問正解までの経過時間を格納
+      localStorage.setItem(StorageData.AllProblemClearTime, clearTime);
+
       window.setTimeout(() => {
         // 結果画面を表示する
         setIsOpenResultDisplay(true);
@@ -247,6 +267,45 @@ function App() {
     changeResultDisplay(true);
   }
 
+  /**
+   * 全問正解までの時間の計測開始
+   */
+  const timerStart = (): void => {
+    const nowTime = new Date().getTime();
+    // ストレージに現在の時刻を格納する
+    localStorage.setItem(StorageData.StartTime, String(nowTime));
+    console.log('格納されました:', nowTime);
+  }
+
+  /**
+   * 特定の時刻から現在時刻の経過時間を取得
+   * @param {number} startTime - 測定開始時刻
+   * @returns {string} 経過時間(HH:MM:SS)
+   */
+  const getElapsedTime = (startTime: number): string => {
+    // 現在時刻を取得
+    const currentTime = new Date().getTime();
+    // 開始時刻から現在時刻までの経過時刻を取得
+    const diffTime = currentTime - startTime;
+    console.log(diffTime);
+    const elapsedTime: string[] = [];
+    // 時を算出
+    elapsedTime.push(String(Math.floor(diffTime / (1000 * 60 * 60))));
+    // 分を算出
+    elapsedTime.push(String(Math.floor(diffTime / (1000 * 60))));
+    // 秒を算出
+    elapsedTime.push(String(Math.floor(diffTime / 1000)));
+    
+    // ゼロ埋め
+    elapsedTime.forEach((time, i) => {
+      // 1桁の場合
+      if (time.length === 1) {
+        elapsedTime[i] = '0' + time;
+      }
+    })
+    return elapsedTime.join(':');
+  }
+
   return (
     <div id="app">
       <div id="app-container" className="app-container-center">
@@ -279,6 +338,7 @@ function App() {
             isOpen={isOpenHowToDialog}
             isInitDisplay={isOpenHowToDialogForInitDisplay}
             closeHowToPlayDialog={() => changeHowToPlayDialog(false)}
+            timerStart={timerStart}
           />
           <SurrenderConfirmationDialog
             isOpen={isOpenSurrenderConfirmationDialog}
@@ -292,6 +352,7 @@ function App() {
             <ResultDisplay
               isOpen={isOpenResultDisplay}
               problemInfoList={problemInfoList}
+              allProblemClearTime={allProblemClearTime}
               isSurrender={isSurrender}
             ></ResultDisplay>
           </div>
