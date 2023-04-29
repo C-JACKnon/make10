@@ -1,0 +1,26 @@
+#answer-area {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  font-size: 1.5em;
+}
+
+.answer-info-title {
+  font-weight: bold;
+  margin-top: 2em;
+}
+
+.answer-time {
+  margin-top: 10px;
+}
+
+#answer-list {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+}
+
+.answer-list-row {
+  margin-top: 10px;
+}

@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/make10/static/css/main.5a5f1bb4.css",
-    "main.js": "/make10/static/js/main.92073a3e.js",
+    "main.css": "/make10/static/css/main.a8f55e20.css",
+    "main.js": "/make10/static/js/main.3ad00f33.js",
     "static/js/787.b84a44f9.chunk.js": "/make10/static/js/787.b84a44f9.chunk.js",
     "index.html": "/make10/index.html",
-    "main.5a5f1bb4.css.map": "/make10/static/css/main.5a5f1bb4.css.map",
-    "main.92073a3e.js.map": "/make10/static/js/main.92073a3e.js.map",
+    "main.a8f55e20.css.map": "/make10/static/css/main.a8f55e20.css.map",
+    "main.3ad00f33.js.map": "/make10/static/js/main.3ad00f33.js.map",
     "787.b84a44f9.chunk.js.map": "/make10/static/js/787.b84a44f9.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.5a5f1bb4.css",
-    "static/js/main.92073a3e.js"
+    "static/css/main.a8f55e20.css",
+    "static/js/main.3ad00f33.js"
   ]
 }

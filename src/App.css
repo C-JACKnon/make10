@@ -54,3 +54,22 @@
   align-items: center;
   justify-content: center;
 }
+
+#make-ten-area {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#result-display-area {
+  transition: opacity 0.3s 0.3s;
+}
+
+.area-visible {
+  opacity: 1 !important;
+}
+
+.area-hidden {
+  height: 0px;
+  visibility: hidden;
+  opacity: 0;
+}

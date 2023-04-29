@@ -10,6 +10,10 @@ export enum StorageData {
    * その日の正解数
    */
   CorrectAnswerCount = 'CorrectAnswerCount',
+  /**
+   * 降参フラグ
+   */
+  IsSurrender = 'false'
 }
 
 /**

@@ -7,6 +7,8 @@ import { ProblemInfo, StorageData } from './core/types';
 import { problemList } from './assets/problem/problemList';
 import Chance from 'chance';
 import ProblemCounter from './components/problem_counter/ProblemCounter';
+import ResultDisplay from './components/result_display/ResultDisplay';
+import SurrenderConfirmationDialog from './components/surrender_confirmation_dialog/SurrenderConfirmationDialog';
 
 /**
  * アプリケーションコンポーネント
@@ -15,6 +17,7 @@ import ProblemCounter from './components/problem_counter/ProblemCounter';
 function App() {
   const idDevelopMode: boolean = false; // 開発モード
   const problemCount: number = 5; // 出題する問題数
+  const showResultDisplayWaitTime: number = 800; // 結果画面表示までの待機時間(ms)
 
   // 問題情報リスト
   const [problemInfoList, setProblemInfoList] = useState<ProblemInfo[]>([]);
@@ -26,10 +29,22 @@ function App() {
   const [isOpenHowToDialog, setIsOpenHowToDialog] = useState(false);
 
   // 遊び方ダイアログの初期表示フラグ
-  const [isInitDisplay, setIsInitDisplay] = useState(true);
+  const [isOpenHowToDialogForInitDisplay, setIsOpenHowToDialogForInitDisplay] = useState(true);
+
+  // 降参ダイアログの表示フラグ
+  const [isOpenSurrenderConfirmationDialog, setIsOpenSurrenderConfirmationDialog] = useState(false);
+
+  // 降参フラグ
+  const [isSurrender, setIsSurrender] = useState(false);
+
+  // 結果画面の表示フラグ
+  const [isOpenResultDisplay, setIsOpenResultDisplay] = useState(false);
 
   // 正解数
   const [correctAnswerCount, setCorrectAnswerCount] = useState(0);
+
+  // 画面初期処理完了フラグ
+  const [isInitDisplayCompleted, setIsInitDisplayCompleted] = useState(false);
 
   /**
 	 * 初回レンダリング時処理
@@ -40,17 +55,31 @@ function App() {
     // 今日始めてページを表示した場合
     if (localStorage.getItem(StorageData.OpenPageDate) !== today) {
       localStorage.setItem(StorageData.OpenPageDate, today); // ストレージに今日の日付を格納
-      localStorage.setItem(StorageData.CorrectAnswerCount, '0');
-      setIsInitDisplay(true); // 遊び方ダイアログ初期表示フラグON
+      localStorage.setItem(StorageData.CorrectAnswerCount, '0'); // ストレージの正解数をリセット
+      localStorage.setItem(StorageData.IsSurrender, 'false'); // ストレージの降参フラグをリセット
+      setIsOpenHowToDialogForInitDisplay(true); // 遊び方ダイアログ初期表示フラグON
       changeHowToPlayDialog(true); // 遊び方ダイアログを表示
     }
     else {
       // 今日の正解数を取得
       const todayCorrectAnswerCount = localStorage.getItem(StorageData.CorrectAnswerCount);
       if (todayCorrectAnswerCount != null) {
-        // 今日の正解数を設定
-        setCorrectAnswerCount(Number(todayCorrectAnswerCount));
-        newCorrectAnswerCount = Number(todayCorrectAnswerCount);
+        // 全問正解している場合
+        if (Number(todayCorrectAnswerCount) >= problemCount) {
+          // 格納されている降参フラグを取得
+          const todayIsSurrender = localStorage.getItem(StorageData.IsSurrender);
+          
+          // 降参フラグを更新
+          setIsSurrender(todayIsSurrender === 'true');
+
+          // 結果画面の表示フラグON
+          setIsOpenResultDisplay(true);
+        }
+        else {
+          // 今日の正解数を設定
+          setCorrectAnswerCount(Number(todayCorrectAnswerCount));
+          newCorrectAnswerCount = Number(todayCorrectAnswerCount);
+        }
       }
     }
     const problemInfos = createProblem(today);
@@ -66,22 +95,32 @@ function App() {
 
     // 問題の更新
     setProblemNumbers(newProblemNumbers);
+
+    // 画面初期処理完了フラグ
+    setIsInitDisplayCompleted(true);
 	}, []);
 
   /**
    * 問題正解イベント
    */
   const handleCorrectAnswer = (): void => {
+    // 正解数を加算
+    const newCorrectAnswerCount = correctAnswerCount + 1;
+
+    // 正解数をローカルストレージに格納
+    localStorage.setItem(StorageData.CorrectAnswerCount, String(newCorrectAnswerCount));
+
     // 最終問題に正解した場合
-    if (correctAnswerCount >= problemCount - 1) {
-      // TODO: リザルト画面の表示
+    if (newCorrectAnswerCount >= problemCount) {
+      window.setTimeout(() => {
+        // 結果画面を表示する
+        setIsOpenResultDisplay(true);
+      }, showResultDisplayWaitTime);
       return; // 後続処理をスキップする 
     }
 
-    // 正解数を加算
-    const newCorrectAnswerCount = correctAnswerCount + 1;
+    // 正解数を更新
     setCorrectAnswerCount(newCorrectAnswerCount);
-    localStorage.setItem(StorageData.CorrectAnswerCount, String(newCorrectAnswerCount));
 
     // 新しい問題を設定
     const newProblemNumbers = [...problemNumbers]; // 配列の値渡し
@@ -157,6 +196,11 @@ function App() {
         answer: problemList[index].answer,
       })
     });
+    
+    // 開発者モードの場合
+    if (idDevelopMode) {
+      console.log('[Develop] Today problems.', problemInfos);
+    }
     return problemInfos;
   }
 
@@ -168,30 +212,89 @@ function App() {
     setIsOpenHowToDialog(isOpen); // 表示非表示を切り替える
   }
 
+  /**
+   * 降参ダイアログの表示/非表示の切り替え
+   * @param {boolean} isOpen - ダイアログを表示させるか否か
+   */
+  const changeSurrenderConfirmationDialog = (isOpen: boolean): void => {
+    setIsOpenSurrenderConfirmationDialog(isOpen); // 表示非表示を切り替える
+  }
+
+  /**
+   * 結果画面の表示/非表示の切り替え
+   * @param {boolean} isOpen - ダイアログを表示させるか否か
+   */
+  const changeResultDisplay = (isOpen: boolean): void => {
+    setIsOpenResultDisplay(isOpen); // 表示非表示を切り替える
+  }
+
+  /**
+   * 降参による結果画面の表示
+   */
+  const showResultForSurrender = (): void => {
+    // 問題数をローカルストレージに格納する
+    localStorage.setItem(StorageData.CorrectAnswerCount, String(problemCount));
+    // 降参フラグONをローカルストレージに格納する
+    localStorage.setItem(StorageData.IsSurrender, 'true');
+
+    // 降参フラグON
+    setIsSurrender(true);
+
+    // 降参確認ダイアログを非表示
+    changeSurrenderConfirmationDialog(false);
+    
+    // 結果画面の表示
+    changeResultDisplay(true);
+  }
+
   return (
     <div id="app">
       <div id="app-container" className="app-container-center">
         <div id="app-core">
-          <HowToPlayDialog
-            isOpen={isOpenHowToDialog}
-            isInitDisplay={isInitDisplay}
-            closeHowToPlayDialog={() => changeHowToPlayDialog(false)}
-          />
           <Header
             openHowToPlayDialog={() => {
-              setIsInitDisplay(false);
+              setIsOpenHowToDialogForInitDisplay(false);
               changeHowToPlayDialog(true);
             }}
+            openSurrenderConfirmationDialog={() => changeSurrenderConfirmationDialog(true)}
+            isOpenResultDisplay={isOpenResultDisplay}
             isDevelopMode={idDevelopMode}
           />
-          <ProblemCounter
-            problemNumber={correctAnswerCount + 1}
-            problemCount={problemCount}
-          ></ProblemCounter>
-          <MakeTen
-            problemNumbers={problemNumbers}
-            correctAnswer={handleCorrectAnswer}
+          <div
+            id="make-ten-area"
+            className={`
+              ${isOpenResultDisplay ? "area-hidden" : ""}
+              ${(isInitDisplayCompleted && !isOpenResultDisplay) ? "area-visible" : ""}
+            `} >
+            <ProblemCounter
+              problemNumber={correctAnswerCount + 1}
+              problemCount={problemCount}
+            ></ProblemCounter>
+            <MakeTen
+              problemNumbers={problemNumbers}
+              correctAnswer={handleCorrectAnswer}
+            />
+          </div>
+          <HowToPlayDialog
+            isOpen={isOpenHowToDialog}
+            isInitDisplay={isOpenHowToDialogForInitDisplay}
+            closeHowToPlayDialog={() => changeHowToPlayDialog(false)}
           />
+          <SurrenderConfirmationDialog
+            isOpen={isOpenSurrenderConfirmationDialog}
+            closeSurrenderConfirmationDialog={() => changeSurrenderConfirmationDialog(false)}
+            openResultDisplay={showResultForSurrender}
+          ></SurrenderConfirmationDialog>
+          <div
+            id="result-display-area"
+            className={isOpenResultDisplay ? "area-visible" : "area-hidden"}
+          >
+            <ResultDisplay
+              isOpen={isOpenResultDisplay}
+              problemInfoList={problemInfoList}
+              isSurrender={isSurrender}
+            ></ResultDisplay>
+          </div>
         </div>
       </div>
     </div>
