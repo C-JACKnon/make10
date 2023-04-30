@@ -15,7 +15,7 @@ import SurrenderConfirmationDialog from './components/surrender_confirmation_dia
  * @returns アプリケーションコンポーネント
  */
 function App() {
-  const idDevelopMode: boolean = false; // 開発モード
+  const idDevelopMode: boolean = true; // 開発モード // TODO: チェックイン前にfalseとすること
   const problemCount: number = 5; // 出題する問題数
   const showResultDisplayWaitTime: number = 800; // 結果画面表示までの待機時間(ms)
 
@@ -93,6 +93,7 @@ function App() {
         }
       }
     }
+    // 今日の日付をシード値として問題を生成する
     const problemInfos = createProblem(today);
 
     // 出題する問題情報リストに格納
@@ -125,10 +126,13 @@ function App() {
     if (newCorrectAnswerCount >= problemCount) {
       // ストレージに格納されている開始時間を取得
       const startTime = localStorage.getItem(StorageData.StartTime);
+
       // 開始時刻から現在時刻までの時間を取得
       const clearTime = getElapsedTime(Number(startTime));
+
       // 全問正解までの時間を更新
       setAllProblemClearTime(clearTime);
+
       // ストレージに全問正解までの経過時間を格納
       localStorage.setItem(StorageData.AllProblemClearTime, clearTime);
 
@@ -274,7 +278,6 @@ function App() {
     const nowTime = new Date().getTime();
     // ストレージに現在の時刻を格納する
     localStorage.setItem(StorageData.StartTime, String(nowTime));
-    console.log('格納されました:', nowTime);
   }
 
   /**
@@ -285,16 +288,18 @@ function App() {
   const getElapsedTime = (startTime: number): string => {
     // 現在時刻を取得
     const currentTime = new Date().getTime();
+    
     // 開始時刻から現在時刻までの経過時刻を取得
     const diffTime = currentTime - startTime;
-    console.log(diffTime);
+
     const elapsedTime: string[] = [];
+
     // 時を算出
     elapsedTime.push(String(Math.floor(diffTime / (1000 * 60 * 60))));
     // 分を算出
-    elapsedTime.push(String(Math.floor(diffTime / (1000 * 60))));
+    elapsedTime.push(String(Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60))));
     // 秒を算出
-    elapsedTime.push(String(Math.floor(diffTime / 1000)));
+    elapsedTime.push(String(Math.floor(((diffTime % (1000 * 60 * 60)) % (1000 * 60)) / 1000)));
     
     // ゼロ埋め
     elapsedTime.forEach((time, i) => {
