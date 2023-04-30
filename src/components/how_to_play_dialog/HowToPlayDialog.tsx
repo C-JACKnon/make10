@@ -28,11 +28,13 @@ const Transition = React.forwardRef(function Transition(
  * @property {boolean} isOpen - 遊び方ダイアログの表示フラグ
  * @property {boolean} isInitDisplay - 初期表示フラグ
  * @property {Function} closeHowToPlayDialog - 遊び方ダイアログの非表示
+ * @property {Function} timerStart - 全問正解までのタイムの計測開始
  */
 type Props = {
 	isOpen: boolean;
   isInitDisplay: boolean;
 	closeHowToPlayDialog: () => void;
+  timerStart: () => void;
 }
 
 /**
@@ -40,12 +42,13 @@ type Props = {
  * @param {boolean} isOpen - 遊び方ダイアログの表示フラグ
  * @param {boolean} isInitDisplay - 初期表示フラグ
  * @param {Function} closeHowToPlayDialog - 遊び方ダイアログの非表示
+ * @param {Function} timerStart - 全問正解までのタイムの計測開始
  * @returns HowToPlayDialogコンポーネント
  */
-const HowToPlayDialog = ({ isOpen, isInitDisplay, closeHowToPlayDialog }: Props): JSX.Element => {
+const HowToPlayDialog = ({ isOpen, isInitDisplay, closeHowToPlayDialog, timerStart }: Props): JSX.Element => {
 
   return (
-    <div>
+    <>
       <Dialog
         open={isOpen}
 				TransitionComponent={Transition}
@@ -81,12 +84,15 @@ const HowToPlayDialog = ({ isOpen, isInitDisplay, closeHowToPlayDialog }: Props)
           <Button
 						color="primary"
 						variant="contained"
-						onClick={closeHowToPlayDialog}
+						onClick={() => {
+              closeHowToPlayDialog();
+              timerStart();
+            }}
             sx={{ width: '40%' }}
 					>START</Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </>
   );
 }
 

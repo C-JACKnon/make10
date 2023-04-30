@@ -55,7 +55,28 @@
   justify-content: center;
 }
 
-#dice-value {
-  margin: 10px 0px 30px 0px;
-  font-size: xx-large;
+#make-ten-area {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+#result-display-area {
+  transition: opacity 0.3s 0.3s;
+}
+
+.area-visible {
+  opacity: 1 !important;
+}
+
+.area-hidden {
+  height: 0px;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.result-area-hidden {
+  display: none;
+  height: 0px;
+  visibility: hidden;
+  opacity: 0;
 }

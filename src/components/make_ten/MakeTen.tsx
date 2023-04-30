@@ -1,20 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { ButtonStyle, NumberCalcButtonStyles, ButtonType, ButtonAreaSize, VisibilityInButtonStyle } from '../../core/types';
+import GradeIcon from '@mui/icons-material/Grade';
 import './MakeTen.css';
 
 /**
  * MakeTenコンポーネントのprops
  * @property {number[]} problemNumbers - 問題の数字配列[4]
+ * @property {Function} correctAnswer - 問題正解処理
  */
 type Props = {
 	problemNumbers: number[];
+	correctAnswer: () => void;
 }
 
 /**
  * MakeTenコンポーネント
  * @returns MakeTenコンポーネント
  */
-const MakeTen = ({problemNumbers}: Props): JSX.Element => {
+const MakeTen = ({ problemNumbers, correctAnswer }: Props): JSX.Element => {
 	// 丸いボタンの色
 	const buttonColor = {
 		number: '#93c7c9',
@@ -63,10 +66,14 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 	const selectedButtonsCalcWaitTime: number = 200; // 選択したボタンの計算開始までの待機時間(ms)
 	const resultButtonVisibleWaitTime: number = 100; // 算出した数字を表示するまでの待機時間(ms)
 	const setPositionButtonWaitTime: number = 300; // 選択しているボタンをもとの位置に戻すまでの待機時間(ms)
+	const nextProblemWaitTime: number = 800; // 正解から次の問題までの待機時間(ms)
 	const failedWaitTime: number = 200; // 不正解時に回答を表示しておく時間(ms)
 	const maxAppContainerWidth: number = 500; // 最大アプリケーション幅(px)
 	let resizeEventSetTimeoutId: number = 0; // リサイズイベント時のsetTimeoutID
 	let buttonAnimationSetTimeoutId: number = 0; // ボタンアニメーションの一時解除setTimeoutID
+
+	// 初期表示フラグ
+	const [isInitDisplay, setIsInitDisplay] = useState(true);
 
 	// 選択されているボタン配列（[3]{数字, 演算子, 数字}）
 	const [selectedButtons, setSelectedButtons] = useState<ButtonType[]>([]);
@@ -108,7 +115,10 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 	const [buttonAreaSize, setButtonAreaSize] = useState<ButtonAreaSize>(defaultButtonAreaSize);
 
 	// ボタンアニメーション有効フラグ
-	const [isButtonAnimation, setIsButtonAnimation] = useState(false);
+	const [isButtonMoveAmination, setIsButtonMoveAnimation] = useState(false);
+
+	// 正解時のスターアニメーション実行フラグ
+	const [isStarAnimation, setIsStarAnimation] = useState(false);
 
 	/**
 	 * 初回レンダリング時処理
@@ -125,8 +135,8 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 
 		// ブラウザリサイズイベントの登録
 		window.addEventListener('resize', (): void => {
-			// タイムアウトが走っていない場合
-			if (resizeEventSetTimeoutId === 0) {
+			// タイムアウトが走っていない、かつ正解アニメーション実行中でない場合
+			if (resizeEventSetTimeoutId === 0 && !isStarAnimation) {
 				resizeEventSetTimeoutId = window.setTimeout(() => {
 					const newButtonAreaSize = getButtonAreaSize(); // ボタンエリアのサイズを取得
 					const newButtonSize = setButtonSizeStyle(newButtonAreaSize); // ボタンサイズの設定
@@ -141,6 +151,9 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 				}, resizeEventInterval);
 			}
 		});
+	
+		// 初期表示フラグをOFFにする
+		setIsInitDisplay(false);
 	}, []);
 
 	/**
@@ -256,6 +269,14 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 									initAllButtonLayout(buttonSize, buttonAreaSize); // ボタンの初期位置設定
 								}, failedWaitTime);
 							}
+							// 正解時
+							else {
+								// 正解アニメーション実行
+								setIsStarAnimation(true);
+
+								// 正解時処理
+								correctAnswer(); 
+							}
 						}
 
 						// 回答時以外の場合(回答時はすべてリセットするため以下実施不要)
@@ -273,11 +294,29 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 	}, [selectedButtons]);
 
 	/**
+	 * 問題変更時処理
+	 */
+	useEffect(() => {
+		// 初期表示時の場合
+		if (isInitDisplay) {
+			return; // 後続処理をスキップ
+		}
+
+		window.setTimeout(() => {
+			// ボタンを初期位置に戻す
+			initAllButtonLayout(buttonSize, buttonAreaSize);
+
+			// 正解時のスターアニメーション実行フラグをOFF（ボタン有効化）
+			setIsStarAnimation(false);
+		}, nextProblemWaitTime);
+	}, [problemNumbers]);
+
+	/**
 	 * ボタンのアニメーションの一時解除
 	 */
 	const stopButtonAnimation = (): void => {
 		// アニメーション無効
-		setIsButtonAnimation(false);
+		setIsButtonMoveAnimation(false);
 
 		// タイムアウトが既に走っている場合
 		if (buttonAnimationSetTimeoutId !== 0) {
@@ -285,7 +324,7 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 		}
 		// タイムアウトスタート
 		buttonAnimationSetTimeoutId = window.setTimeout(() => {
-			setIsButtonAnimation(true); // アニメーション有効
+			setIsButtonMoveAnimation(true); // アニメーション有効
 			window.clearTimeout(buttonAnimationSetTimeoutId); // タイムアウトイベントの削除
 			buttonAnimationSetTimeoutId = 0; // IDリセット
 		}, buttonAnimationStopInterval);
@@ -611,8 +650,8 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 	 * @param selectedButton - 押下した数字ボタンの種類
 	 */
 	const handleClickButton = (selectedButton: ButtonType): void => {
-		// 既に３つボタンが選択されている状態の場合
-		if (selectedButtons.length >= 3) {
+		// 既に３つボタンが選択されている、もしくは正解アニメーション中の場合の場合
+		if (selectedButtons.length >= 3 || isStarAnimation) {
 			return; // 後続処理をスキップ
 		}
 
@@ -702,8 +741,8 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 	 * リセットボタン押下イベント
 	 */
 	const handleClickResetButton = (): void => {
-		// ボタンを3つ選択している状態の場合
-		if (selectedButtons.length >= 3) {
+		// ボタンを3つ選択している、もしくは正解アニメーション中の場合
+		if (selectedButtons.length >= 3 || isStarAnimation) {
 			return; // 処理をスキップ
 		}
 
@@ -1164,59 +1203,63 @@ const MakeTen = ({problemNumbers}: Props): JSX.Element => {
 		<>
 			<div id="button-area" style={{height: buttonAreaSize.height + 'px'}}>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.FirstNumber]}
 					onClick={() => handleClickButton(ButtonType.FirstNumber)}
 				>{problemNumbers[0]}</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.SecondNumber]}
 					onClick={() => handleClickButton(ButtonType.SecondNumber)}
 				>{problemNumbers[1]}</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.ThirdNumber]}
 					onClick={() => handleClickButton(ButtonType.ThirdNumber)}
 				>{problemNumbers[2]}</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.FourthNumber]}
 					onClick={() => handleClickButton(ButtonType.FourthNumber)}
 				>{problemNumbers[3]}</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.Plus]}
 					onClick={() => handleClickButton(ButtonType.Plus)}
 				>+</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.Minus]}
 					onClick={() => handleClickButton(ButtonType.Minus)}
 				>-</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.Multiply]}
 					onClick={() => handleClickButton(ButtonType.Multiply)}
 				>×</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.Division]}
 					onClick={() => handleClickButton(ButtonType.Division)}
 				>÷</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.FirstResultNumber]}
 					onClick={() => handleClickButton(ButtonType.FirstResultNumber)}
 				>{firstResultNumberValue}</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.SecondResultNumber]}
 					onClick={() => handleClickButton(ButtonType.SecondResultNumber)}
 				>{secondResultNumberValue}</div>
 				<div
-					className={`${"round-button"} ${isButtonAnimation ? "button-animation" : ""}`}
+					className={`${"round-button"} ${isButtonMoveAmination ? "button-animation" : ""}`}
 					style={numberCalcButtonStyles[ButtonType.AnswerNumber]}
-				>{answerNumberValue}</div>
+				>
+					{answerNumberValue}
+					<GradeIcon fontSize="large" className={`${"star"} ${"star-right-high"} ${isStarAnimation ? "star-right-high-animation" : ""}`} />
+					<GradeIcon fontSize="large" className={`${"star"} ${"star-left-high"} ${isStarAnimation ? "star-left-high-animation" : ""}`} />
+				</div>
 			</div>
 			<div id="reset-button" onClick={handleClickResetButton}>
 				Reset
