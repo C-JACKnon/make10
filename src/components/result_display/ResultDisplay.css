@@ -26,6 +26,16 @@
   margin-top: 10px;
 }
 
+.share-button-area {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 50%;
+}
+
 .next-problem-wait-time {
   margin-top: 10px;
   margin-bottom: 2em;

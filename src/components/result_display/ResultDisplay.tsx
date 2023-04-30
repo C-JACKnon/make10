@@ -2,6 +2,14 @@ import * as React from 'react';
 import './ResultDisplay.css';
 import { ProblemInfo } from '../../core/types';
 import { useEffect, useState } from 'react';
+import {
+  TwitterIcon,
+  TwitterShareButton,
+  LineShareButton,
+  LineIcon,
+  FacebookShareButton,
+  FacebookIcon,
+} from "react-share"
 
 /**
  * ResultDisplayコンポーネントのProps
@@ -30,7 +38,8 @@ const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrend
   const pageReloadWaitTime = 1000; // 日付変更時の画面リロード待機時間(ms)
   const resizeEventInterval: number = 50; // リサイズイベントの発生インターバル(ms)
   let resizeEventSetTimeoutId: number = 0; // リサイズイベント時のsetTimeoutID
-  
+  const pageURL = 'https://c-jacknon.github.io/make10/'; // ページのURL
+
   // 問題更新までの残り時間
   const [nextProblemWaitTime, setNextProblemWaitTime] = useState<string>('');
 
@@ -136,6 +145,21 @@ const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrend
               {(i + 1) + '. ' + problemInfo.answer}
             </div>
         )}
+      </div>
+      <div className="answer-info-title">- 友達にシェア -</div>
+      <div className="share-button-area">
+        <TwitterShareButton
+          url={pageURL}
+          title={'【Make10】今日のタイムは[' + (isSurrender ? '記録なし' : answerTime)  +']でした.\n'}
+        >
+          <TwitterIcon size={'2em'} round />
+        </TwitterShareButton>
+        <LineShareButton url={pageURL}>
+          <LineIcon size={'2em'} round />
+        </LineShareButton>
+        <FacebookShareButton url={pageURL}>
+          <FacebookIcon size={'2em'} round />
+        </FacebookShareButton>
       </div>
       <div className="answer-info-title">- 問題の更新まで -</div>
       <div className="next-problem-wait-time">
