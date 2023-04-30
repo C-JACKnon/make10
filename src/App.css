@@ -73,3 +73,10 @@
   visibility: hidden;
   opacity: 0;
 }
+
+.result-area-hidden {
+  display: none;
+  height: 0px;
+  visibility: hidden;
+  opacity: 0;
+}

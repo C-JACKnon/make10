@@ -338,7 +338,7 @@ function App() {
           ></SurrenderConfirmationDialog>
           <div
             id="result-display-area"
-            className={isOpenResultDisplay ? "area-visible" : "area-hidden"}
+            className={isOpenResultDisplay ? "area-visible" : "result-area-hidden"}
           >
             <ResultDisplay
               isOpen={isOpenResultDisplay}

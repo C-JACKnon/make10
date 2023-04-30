@@ -26,8 +26,10 @@ type Props = {
  * @returns ResultDisplayコンポーネント
  */
 const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrender }: Props): JSX.Element => {
-  // 問題更新までの残り時間の更新周期(ms)
-  const nextProblemWaitTimeUpdateCycle = 500;
+  const nextProblemWaitTimeUpdateCycle = 500; // 問題更新までの残り時間の更新周期(ms)
+  const pageReloadWaitTime = 1000; // 日付変更時の画面リロード待機時間(ms)
+  const resizeEventInterval: number = 50; // リサイズイベントの発生インターバル(ms)
+  let resizeEventSetTimeoutId: number = 0; // リサイズイベント時のsetTimeoutID
   
   // 問題更新までの残り時間
   const [nextProblemWaitTime, setNextProblemWaitTime] = useState<string>('');
@@ -42,7 +44,7 @@ const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrend
     setResultDisplayHeight(newResultDisplayHeight);
 
     // 問題更新までの残り時間を更新させる周期処理
-    window.setInterval(() => {
+    const intervalId = window.setInterval(() => {
       const date = new Date();
       
       // 残り時間の時を算出
@@ -57,9 +59,43 @@ const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrend
         waitTimeMin.toString().padStart(2, '0'),
         waitTimeSec.toString().padStart(2, '0')
       ];
-      // 残り時間を更新
-      setNextProblemWaitTime(newNextProblemWaitTime.join(':'));
+
+      // 日付が更新されたか判定
+      if (date.getHours() === 0
+        && date.getMinutes() === 0
+        && date.getSeconds() === 0) {
+        // 残り時間を更新
+        setNextProblemWaitTime('00:00:00');
+
+        // 周期処理を終了する
+        window.clearInterval(intervalId);
+
+        // 一定時間待機後に画面を更新させる
+        window.setTimeout(() => {
+          // ページリロード
+          window.location.reload();
+        }, pageReloadWaitTime);
+      }
+      else {
+        // 残り時間を更新
+        setNextProblemWaitTime(newNextProblemWaitTime.join(':'));
+      }
     }, nextProblemWaitTimeUpdateCycle)
+
+    // ブラウザリサイズイベントの登録
+		window.addEventListener('resize', (): void => {
+      // タイムアウトが走っていない、かつ正解アニメーション実行中でない場合
+			if (resizeEventSetTimeoutId === 0) {
+        resizeEventSetTimeoutId = window.setTimeout(() => {
+          // 結果画面の高さを算出
+          const newResultDisplayHeight = calcResultDisplayHeight();
+          // 画面高さを更新
+          setResultDisplayHeight(newResultDisplayHeight);
+          window.clearTimeout(resizeEventSetTimeoutId); // タイムアウトイベントの削除
+					resizeEventSetTimeoutId = 0; // IDリセット
+        }, resizeEventInterval);
+      }
+    });
   }, []);
 
   /**
@@ -71,12 +107,10 @@ const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrend
     if (appDisplayElement === null) {
       throw new Error('Failed access "app-core" element.');
     }
-    console.log('appDisplayElement:', appDisplayElement.clientHeight);
     const appHeaderElement = document.getElementById('app-header');
     if (appHeaderElement === null) {
       throw new Error('Failed access "app-header" element.');
     }
-    console.log('appHeaderElement:', appHeaderElement.clientHeight);
     return appDisplayElement.clientHeight - appHeaderElement.clientHeight;
   }
   
