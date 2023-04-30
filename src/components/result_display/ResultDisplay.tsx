@@ -150,7 +150,7 @@ const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrend
       <div className="share-button-area">
         <TwitterShareButton
           url={pageURL}
-          title={'【Make10】今日のタイムは[' + (isSurrender ? '記録なし' : answerTime)  +']でした.\n'}
+          title={'【Make10】今日のタイムは[' + (isSurrender ? '記録なし' : allProblemClearTime)  +']でした.\n'}
         >
           <TwitterIcon size={'2em'} round />
         </TwitterShareButton>
