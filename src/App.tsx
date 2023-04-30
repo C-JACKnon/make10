@@ -163,18 +163,11 @@ function App() {
    */
   const getNowDate = (): string => {
     const dateObj = new Date();
-    const yearStr = dateObj.getFullYear().toString();
-    const month = dateObj.getMonth() + 1;
-    let monthStr = month.toString();
-    if (monthStr.length === 1) {
-      monthStr = '0' + monthStr;
-    }
-    const date = dateObj.getDate();
-    let dateStr = date.toString();
-    if (dateStr.length === 1) {
-      dateStr = '0' + dateStr;
-    }
-    return yearStr + monthStr + dateStr;
+    const year = dateObj.getFullYear().toString();
+    const month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+    const day = dateObj.getDate().toString().padStart(2, '0');
+    
+    return year + month + day;
   }
 
   /**
@@ -295,19 +288,12 @@ function App() {
     const elapsedTime: string[] = [];
 
     // 時を算出
-    elapsedTime.push(String(Math.floor(diffTime / (1000 * 60 * 60))));
+    elapsedTime.push(String(Math.floor(diffTime / (1000 * 60 * 60))).padStart(2, '0'));
     // 分を算出
-    elapsedTime.push(String(Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60))));
+    elapsedTime.push(String(Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0'));
     // 秒を算出
-    elapsedTime.push(String(Math.floor(((diffTime % (1000 * 60 * 60)) % (1000 * 60)) / 1000)));
+    elapsedTime.push(String(Math.floor(((diffTime % (1000 * 60 * 60)) % (1000 * 60)) / 1000)).padStart(2, '0'));
     
-    // ゼロ埋め
-    elapsedTime.forEach((time, i) => {
-      // 1桁の場合
-      if (time.length === 1) {
-        elapsedTime[i] = '0' + time;
-      }
-    })
     return elapsedTime.join(':');
   }
 

@@ -3,6 +3,7 @@
   flex-wrap: nowrap;
   align-items: center;
   font-size: 1.5em;
+  overflow: scroll;
 }
 
 .answer-info-title {
@@ -23,4 +24,9 @@
 
 .answer-list-row {
   margin-top: 10px;
+}
+
+.next-problem-wait-time {
+  margin-top: 10px;
+  margin-bottom: 2em;
 }
