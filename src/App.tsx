@@ -330,6 +330,7 @@ function App() {
             isInitDisplay={isOpenHowToDialogForInitDisplay}
             closeHowToPlayDialog={() => changeHowToPlayDialog(false)}
             timerStart={timerStart}
+            problemCount={problemCount}
           />
           <SurrenderConfirmationDialog
             isOpen={isOpenSurrenderConfirmationDialog}
