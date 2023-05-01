@@ -1,6 +1,7 @@
 import React from 'react';
 import './Header.css';
-
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
+import FlagOutlinedIcon from '@mui/icons-material/FlagOutlined';
 import { Divider, IconButton } from '@mui/material';
 
 /**
@@ -54,16 +55,20 @@ const Header = ({ openHowToPlayDialog, openSurrenderConfirmationDialog, isOpenRe
 				<div id="app-title">Make10</div>
 				<div id="header-buttons">
 					<IconButton
-						size="small"
+						size="medium"
 						sx={{ color: '#469b98' }}
 						onClick={handleClickOpenHowToPlayDialogButton}
-					>?</IconButton>
+					>
+						<HelpOutlineOutlinedIcon />
+					</IconButton>
 					<IconButton
-						size="small"
+						size="medium"
 						sx={{ color: '#469b98' }}
 						onClick={handleClickSurrenderButton}
 						disabled={isOpenResultDisplay}
-					>W</IconButton>
+					>
+						<FlagOutlinedIcon />
+					</IconButton>
 					<button
 						style={{ display: (isDevelopMode ? 'unset' : 'none') }}
 						onClick={handleClickClearLocalStorage}

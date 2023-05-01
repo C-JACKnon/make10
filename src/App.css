@@ -1,6 +1,7 @@
 #app {
   background-color: #dce9ea;
   height: 100vh;
+  height: 100svh;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
