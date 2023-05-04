@@ -9,6 +9,7 @@ import Chance from 'chance';
 import ProblemCounter from './components/problem_counter/ProblemCounter';
 import ResultDisplay from './components/result_display/ResultDisplay';
 import SurrenderConfirmationDialog from './components/surrender_confirmation_dialog/SurrenderConfirmationDialog';
+import CannotStorageDialog from './components/cannot_storage_dialog/CannotStorageDialog';
 
 /**
  * アプリケーションコンポーネント
@@ -49,10 +50,15 @@ function App() {
   // 画面初期処理完了フラグ
   const [isInitDisplayCompleted, setIsInitDisplayCompleted] = useState(false);
 
+  // ローカルストレージ使用可能フラグ
+  const [isAvailableLocalStorage, setIsAvailableLocalStorage] = useState(true);
+
   /**
 	 * 初回レンダリング時処理
 	 */
 	useEffect(() => {
+    // ローカルストレージが使用可能か判定
+    setIsAvailableLocalStorage(checkAvailableLocalStorage());
     const today = getNowDate(); // 今日の日付を取得
     let newCorrectAnswerCount = 0;
     // 今日始めてページを表示した場合
@@ -297,6 +303,28 @@ function App() {
     return elapsedTime.join(':');
   }
 
+  /**
+   * ローカルストレージが使用可能か判定
+   * @returns ローカルストレージが使用可能か否か
+   */
+  const checkAvailableLocalStorage = (): boolean => {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('dummy', '1');
+        if (localStorage.getItem('dummy') === '1') {
+          localStorage.removeItem('dummy');
+          return true;
+        } else {
+          return false;
+        }
+      } catch(e) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
+
   return (
     <div id="app">
       <div id="app-container" className="app-container-center">
@@ -348,6 +376,7 @@ function App() {
               isSurrender={isSurrender}
             ></ResultDisplay>
           </div>
+          <CannotStorageDialog isOpen={!isAvailableLocalStorage} ></CannotStorageDialog>
         </div>
       </div>
     </div>
