@@ -16,8 +16,8 @@ import CannotStorageDialog from './components/cannot_storage_dialog/CannotStorag
  * @returns アプリケーションコンポーネント
  */
 function App() {
-  const idDevelopMode: boolean = false; // 開発モード
-  const problemCount: number = 5; // 出題する問題数
+  const idDevelopMode: boolean = true; // 開発モード
+  const problemCount: number = 2; // 出題する問題数
   const showResultDisplayWaitTime: number = 800; // 結果画面表示までの待機時間(ms)
 
   // 問題情報リスト
@@ -125,6 +125,9 @@ function App() {
     // 正解数を加算
     const newCorrectAnswerCount = correctAnswerCount + 1;
 
+    // 正解数を更新
+    setCorrectAnswerCount(newCorrectAnswerCount);
+
     // 正解数をローカルストレージに格納
     localStorage.setItem(StorageData.CorrectAnswerCount, String(newCorrectAnswerCount));
 
@@ -148,9 +151,6 @@ function App() {
       }, showResultDisplayWaitTime);
       return; // 後続処理をスキップする 
     }
-
-    // 正解数を更新
-    setCorrectAnswerCount(newCorrectAnswerCount);
 
     // 新しい問題を設定
     const newProblemNumbers = [...problemNumbers]; // 配列の値渡し
@@ -345,7 +345,7 @@ function App() {
               ${(isInitDisplayCompleted && !isOpenResultDisplay) ? "area-visible" : ""}
             `} >
             <ProblemCounter
-              problemNumber={correctAnswerCount + 1}
+              problemNumber={correctAnswerCount}
               problemCount={problemCount}
             ></ProblemCounter>
             <MakeTen
