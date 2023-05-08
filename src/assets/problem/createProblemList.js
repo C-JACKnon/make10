@@ -43,6 +43,16 @@ noDuplicationNumbers.forEach((numbers) => {
 
 console.log('問題数:', problemList.length);
 
+// 解答が正しいかチェック
+const ngCount = checkAnswer(problemList);
+
+console.log('解答チェック OK:' + (problemList.length - ngCount) + ', NG:' + ngCount);
+
+if (ngCount > 0) {
+  console.error('Failed create problem answer.');
+  return;
+}
+
 const problemListHeader = 'export const problemList = [\n';
 const problemListFooter = '];'
 let problemListString = '';
@@ -159,8 +169,8 @@ function createTen(numbers) {
               }
               // 4つ目の数字として1回目の演算で算出した値を使用した場合
               else if (fourthIndex === thirdNumbers.length - 1) {
-                // 1回目の演算で足し算か引き算、かつ2回目の演算で掛け算か割り算を行う場合
-                if ((i === 0 || i === 1) && (j === 2 || j === 3)) {
+                // 2回目の演算で足し算以外を行う場合
+                if (j != 0) {
                   secondProcess = thirdNumber + getCalc(j) + '(' + firstProcess + ')';
                 }
                 else {
@@ -185,10 +195,10 @@ function createTen(numbers) {
                   let process = '';
                   // 2回目の演算で1回目の計算結果が使用されなかった場合
                   if (thirdIndex < secondNumbers.length - 1 && fourthIndex < thirdNumbers.length - 1) {
-                    // 最終演算が掛け算か割り算の場合
-                    if (k === 2 || k === 3) {
-                      // 1回目2回目ともに足し算か引き算の場合
-                      if ((i === 0 || i === 1) && (j === 0 || j === 1)) {
+                    // 最終演算が足し算以外の場合
+                    if (k != 0) {
+                      // 1回目が足し算か引き算、2回目が掛け算以外の場合
+                      if ((i === 0 || i === 1) && (j != 2)) {
                         process = '(' + firstProcess + ')' + getCalc(k) + '(' + secondProcess + ')';
                       }
                       // 1回目のみ足し算か引き算の場合
@@ -389,4 +399,23 @@ function getCalc(calcType) {
   else {
     return '÷';
   }
+}
+
+/**
+ * 解答が正しいか確認
+ * @param { [{problem: number[], answer: string}] } problemList - 問題配列
+ * @returns {number} 不正な解答数
+ */
+function checkAnswer(problemList) {
+  let ngCount = 0;
+  problemList.forEach((problem) => {
+    // 記号を置換
+    const answerStr = problem.answer.replaceAll('×', '*').replaceAll('÷', '/');
+    const answerNum = Function('return (' + answerStr + ')')();
+    if (answerNum != 10) {
+      console.log(answerStr + ': ' + answerNum);
+      ngCount++;
+    }
+  });
+  return ngCount;
 }
