@@ -16,8 +16,8 @@ import CannotStorageDialog from './components/cannot_storage_dialog/CannotStorag
  * @returns アプリケーションコンポーネント
  */
 function App() {
-  const idDevelopMode: boolean = true; // 開発モード
-  const problemCount: number = 2; // 出題する問題数
+  const idDevelopMode: boolean = false; // 開発モード
+  const problemCount: number = 5; // 出題する問題数
   const showResultDisplayWaitTime: number = 800; // 結果画面表示までの待機時間(ms)
 
   // 問題情報リスト
