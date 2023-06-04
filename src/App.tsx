@@ -10,6 +10,7 @@ import ProblemCounter from './components/problem_counter/ProblemCounter';
 import ResultDisplay from './components/result_display/ResultDisplay';
 import SurrenderConfirmationDialog from './components/surrender_confirmation_dialog/SurrenderConfirmationDialog';
 import CannotStorageDialog from './components/cannot_storage_dialog/CannotStorageDialog';
+import UpdateInformationDialog from './components/update_information_dialog/UpdateInformationDialog';
 
 /**
  * アプリケーションコンポーネント
@@ -17,8 +18,9 @@ import CannotStorageDialog from './components/cannot_storage_dialog/CannotStorag
  */
 function App() {
   const idDevelopMode: boolean = false; // 開発モード
-  const problemCount: number = 5; // 出題する問題数
+  const problemCount: number = 7; // 出題する問題数
   const showResultDisplayWaitTime: number = 800; // 結果画面表示までの待機時間(ms)
+  const showUpdateInformationPeriod: string = '20230731'; // アップデート情報掲載期日
 
   // 問題情報リスト
   const [problemInfoList, setProblemInfoList] = useState<ProblemInfo[]>([]);
@@ -53,6 +55,9 @@ function App() {
   // ローカルストレージ使用可能フラグ
   const [isAvailableLocalStorage, setIsAvailableLocalStorage] = useState(true);
 
+  // アップデート情報ダイアログの表示フラグ
+  const [isOpenUpdateInformationDialog, setIsOpenUpdateInformationDialog] = useState(false);
+
   /**
 	 * 初回レンダリング時処理
 	 */
@@ -68,6 +73,14 @@ function App() {
       localStorage.setItem(StorageData.IsSurrender, 'false'); // ストレージの降参フラグをリセット
       setIsOpenHowToDialogForInitDisplay(true); // 遊び方ダイアログ初期表示フラグON
       changeHowToPlayDialog(true); // 遊び方ダイアログを表示
+
+      // アップデート情報を確認していない、かつアップデート情報掲載期間内の場合
+      const isConfirmedUpdateInformation = localStorage.getItem(StorageData.IsConfirmUpdateInformation);
+      if ((isConfirmedUpdateInformation === null || isConfirmedUpdateInformation === '')
+        && Number(today) <= Number(showUpdateInformationPeriod)) {
+        localStorage.setItem(StorageData.IsConfirmUpdateInformation, 'true'); // アップデート情報確認フラグをストレージに格納
+        setIsOpenUpdateInformationDialog(true); // アップデート情報ダイアログを表示
+      }
     }
     else {
       // 今日の正解数を取得
@@ -236,6 +249,15 @@ function App() {
   }
 
   /**
+   * アップデート譲歩ダイアログの表示/非表示の切り替え
+   * @param {boolean} isOpen - ダイアログを表示させるか否か
+   */
+  const changeUpdateInformationDialog = (isOpen: boolean): void => {
+    setIsOpenUpdateInformationDialog(isOpen); // 表示非表示を切り替える
+  }
+
+
+  /**
    * 降参ダイアログの表示/非表示の切り替え
    * @param {boolean} isOpen - ダイアログを表示させるか否か
    */
@@ -359,6 +381,10 @@ function App() {
             closeHowToPlayDialog={() => changeHowToPlayDialog(false)}
             timerStart={timerStart}
             problemCount={problemCount}
+          />
+          <UpdateInformationDialog
+            isOpen={isOpenUpdateInformationDialog}
+            closeUpdateInformationDialog={() => changeUpdateInformationDialog(false)}
           />
           <SurrenderConfirmationDialog
             isOpen={isOpenSurrenderConfirmationDialog}

@@ -63,10 +63,10 @@ const MakeTen = ({ problemNumbers, correctAnswer }: Props): JSX.Element => {
 	const calcButtonBottomMarginPerHeight: number = 1; // 演算ボタン高さに対する演算ボタン下の余白の高さの割合
 	const resizeEventInterval: number = 50; // リサイズイベントの発生インターバル(ms)
 	const buttonAnimationStopInterval: number = 200; // ボタンのアニメーション一時停止時間(ms)
-	const selectedButtonsCalcWaitTime: number = 200; // 選択したボタンの計算開始までの待機時間(ms)
+	const selectedButtonsCalcWaitTime: number = 100; // 選択したボタンの計算開始までの待機時間(ms)
 	const resultButtonVisibleWaitTime: number = 100; // 算出した数字を表示するまでの待機時間(ms)
-	const setPositionButtonWaitTime: number = 300; // 選択しているボタンをもとの位置に戻すまでの待機時間(ms)
-	const nextProblemWaitTime: number = 800; // 正解から次の問題までの待機時間(ms)
+	const setPositionButtonWaitTime: number = 150; // 選択しているボタンをもとの位置に戻すまでの待機時間(ms)
+	const nextProblemWaitTime: number = 500; // 正解から次の問題までの待機時間(ms)
 	const failedWaitTime: number = 200; // 不正解時に回答を表示しておく時間(ms)
 	const maxAppContainerWidth: number = 500; // 最大アプリケーション幅(px)
 	let resizeEventSetTimeoutId: number = 0; // リサイズイベント時のsetTimeoutID
