@@ -22,6 +22,10 @@ export enum StorageData {
    * 降参フラグ
    */
   IsSurrender = 'IsSurrender',
+  /**
+   * アップデート情報を確認フラグ
+   */
+  IsConfirmUpdateInformation = 'IsConfirmUpdateInformation',
 }
 
 /**

@@ -150,11 +150,11 @@ const ResultDisplay = ({ isOpen, problemInfoList, allProblemClearTime, isSurrend
       <div className="share-button-area">
         <TwitterShareButton
           url={pageURL}
-          title={'【Make10】今日のタイムは[' + (isSurrender ? '記録なし' : allProblemClearTime)  +']でした.\n'}
+          title={'【Make10】\n今日のタイムは[' + (isSurrender ? '記録なし' : allProblemClearTime)  +']でした。\n'}
         >
           <TwitterIcon size={'2em'} round />
         </TwitterShareButton>
-        <LineShareButton url={pageURL}>
+        <LineShareButton url={pageURL + '\n【Make10】\n今日のタイムは[' + (isSurrender ? '記録なし' : allProblemClearTime) + ']でした。'}>
           <LineIcon size={'2em'} round />
         </LineShareButton>
         <FacebookShareButton url={pageURL}>
